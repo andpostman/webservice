@@ -1,5 +1,7 @@
 server:
   port: 8787
+react:
+  url: "http://localhost:3000"
 spring:
   jpa:
     generate-ddl: true
