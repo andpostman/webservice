@@ -8,12 +8,14 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import ru.sbt.synapse.simplewebservice.property.Employee;
 import ru.sbt.synapse.simplewebservice.service.EmployeeServiceImpl;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.hamcrest.CoreMatchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(EmployeeController.class)
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
@@ -55,4 +57,32 @@ class EmployeeControllerTest {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    @DisplayName("Проверка получения пользователей по id")
+    void whenIdExist_thenReturns200() throws Exception {
+        mockMvc.perform(get("/api/v1/employees/1"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("Проверка обновления пользователя")
+    void whenUpdate_thenReturns200() throws Exception{
+        Employee employee = new Employee("Gorets","Goretska","rsss@ya.ru");
+        mockMvc.perform(put("/api/v1/employees/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(employee)))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Test
+    @DisplayName("Проверка обновления пользователя")
+    void whenDelete_thenReturns200() throws Exception{
+        Employee employee = new Employee("Gorets","Goretska","rsss@ya.ru");
+        mockMvc.perform(delete("/api/v1/employees/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(employee)))
+                .andExpect(status().is2xxSuccessful())
+                .andDo(MockMvcResultHandlers.print());
+    }
 }
