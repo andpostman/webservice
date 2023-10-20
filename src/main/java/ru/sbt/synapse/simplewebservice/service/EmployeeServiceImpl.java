@@ -43,7 +43,8 @@ public class EmployeeServiceImpl implements EmployeeService{
     }
 
     @Override
-    public Map<String, Boolean> deleteEmployee(long id) {
-        return null;
+    public void deleteEmployee(long id) {
+        EmployeeDto employeeDto = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Employee not exist with id :" + id));
+        repository.delete(employeeDto);
     }
 }
