@@ -1,6 +1,7 @@
 package ru.sbt.synapse.simplewebservice.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.sbt.synapse.simplewebservice.property.Employee;
@@ -35,5 +36,11 @@ public class EmployeeController {
     @PutMapping("{id}")
     public ResponseEntity<EmployeeDto> updateEmployee(@PathVariable("id") long id, @RequestBody Employee employee){
         return ResponseEntity.ok(service.updateEmployee(id,employee));
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<HttpStatus> deleteEmployee(@PathVariable("id") long id){
+        service.deleteEmployee(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
