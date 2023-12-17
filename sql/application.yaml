@@ -1,0 +1,16 @@
+server:
+  port: 8787
+react:
+  url: "http://localhost:3000"
+spring:
+  jpa:
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+    defer-datasource-initialization: true
+    open-in-view: false
+  datasource:
+    url: jdbc:postgresql://database:5432/postgres
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
