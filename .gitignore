@@ -12,5 +12,3 @@ target
 MANIFEST.MF
 mega.lock
 *.tar
-**/service
-**/ExceptionHandler.java

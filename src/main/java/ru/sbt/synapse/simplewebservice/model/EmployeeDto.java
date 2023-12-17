@@ -10,17 +10,18 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 @Getter
 @Setter
 @NoArgsConstructor
+@RequiredArgsConstructor
 @EqualsAndHashCode(exclude = "id")
-public class Employee {
+public class EmployeeDto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     @Column(name = "first_name")
-    private String firstName;
+    private @NonNull String firstName;
     @Column(name = "last_name")
-    private String lastName;
+    private @NonNull String lastName;
     @Column(name = "email_id")
-    private String emailId;
+    private @NonNull String emailId;
 
     @Override
     public String toString() {
