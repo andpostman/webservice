@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  database:
+    image: postgresql-web:v2
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+#    volumes:
+#      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  java-app:
+    image: swr.ru-moscow-1.hc.sbercloud.ru/sber/web-service:v1.2
+    ports:
+      - "8787:8787"
+    depends_on:
+      - database
+
+  react-app:
+    image: swr.ru-moscow-1.hc.sbercloud.ru/sber/react-frontend:v1
+    ports:
+      - "3000:3000"
+    depends_on:
+      - java-app
