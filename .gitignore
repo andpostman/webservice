@@ -12,3 +12,7 @@ target
 MANIFEST.MF
 mega.lock
 *.tar
+*.pub
+admin
+ansible-ssh
+pipeline.groovy
