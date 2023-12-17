@@ -7,9 +7,7 @@ import ru.sbt.synapse.simplewebservice.property.Employee;
 import ru.sbt.synapse.simplewebservice.exception.ResourceNotFoundException;
 import ru.sbt.synapse.simplewebservice.model.EmployeeDto;
 import ru.sbt.synapse.simplewebservice.repositroy.EmployeeRepository;
-
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
