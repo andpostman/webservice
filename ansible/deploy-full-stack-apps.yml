@@ -1,0 +1,166 @@
+---
+- name: Deploy Full Stack Application
+  hosts: 158.160.136.128
+  become: yes
+
+  vars:
+    spring_app_name: SimpleWebService-0.0.1-SNAPSHOT
+    spring_app_jar_path: SimpleWebService-0.0.1-SNAPSHOT/SimpleWebService-0.0.1-SNAPSHOT.jar
+    react_app_name: react-frontend
+    react_path: ../react-frontend/build
+    postgres_db_name: postgres
+    postgres_schema_name: simple_company
+    postgres_user: db_admin
+    postgres_password: dbAdmin
+  tasks:
+    - name: Update apt package cache
+      apt:
+        update_cache: yes
+
+    - name: Install required packages
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker APT repository
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
+        state: present
+
+    - name: Update apt repositories after adding Docker repository
+      apt:
+        update_cache: yes
+        force_apt_get: yes
+
+    - name: Install Docker
+      apt:
+        name: docker-ce
+        state: present
+
+    - name: Add user to the docker group
+      user:
+        name: "{{ ansible_ssh_user }}"
+        groups: docker
+        append: yes
+
+    - name: Start Docker service
+      service:
+        name: docker
+        state: started
+
+    - name: Download Docker Compose binary
+      get_url:
+        url: "https://github.com/docker/compose/releases/latest/download/docker-compose-{{ ansible_system | lower }}-{{ ansible_architecture }}"
+        dest: /usr/local/bin/docker-compose
+        mode: '0755'
+
+    - name: Verify Docker Compose installation
+      command: docker-compose --version
+      register: compose_version
+      ignore_errors: yes
+
+    - name: Set up Docker Compose if not installed
+      command: "{{ item }}"
+      loop:
+        - ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+        - docker-compose --version
+      when: compose_version.rc != 0
+
+#    - name: Set Python interpreter for Ansible
+#      set_fact:
+#        ansible_python_interpreter: "/usr/bin/python3"
+#      delegate_to: 158.160.134.20
+
+#    - name: Create PostgreSQL database
+#      postgresql_db:
+#        name: "{{ postgres_db_name }}"
+#      become_user: postgres
+#
+#    - name: Create PostgreSQL Superuser
+#      community.postgresql.postgresql_user:
+#        db: "{{ postgres_db_name }}"
+#        name: "{{ postgres_user }}"
+#        password: "{{ postgres_password }}"
+#        role_attr_flags: SUPERUSER
+#        state: present
+#      become_user: postgres
+#
+#    - name: Create PostgreSQL Schema
+#      community.postgresql.postgresql_schema:
+#        db: "{{ postgres_db_name }}"
+#        name: "{{ postgres_schema_name }}"
+#        state: present
+#      become_user: postgres
+#
+#    - name: Create PostgreSQL Tables
+#      community.postgresql.postgresql_query:
+#        db: "{{ postgres_db_name }}"
+#        query: |
+#          CREATE SEQUENCE IF NOT EXISTS simple_company.employee_pkg
+#              MINVALUE 1  NO MAXVALUE
+#              START WITH 1;
+#
+#          create table if not exists simple_company.employee(
+#              id int primary key default nextval('simple_company.employee_pkg' :: regclass),
+#              first_name text not null ,
+#              last_name text not null ,
+#              email_id text not null
+#          );
+#
+#          CREATE UNIQUE INDEX if not exists "employee_id_idx" ON simple_company.employee using btree(id ASC);
+#
+#          alter table simple_company.employee cluster on employee_id_idx;
+#
+#          insert into simple_company.employee(first_name, last_name, email_id) VALUES ('Tom', 'Cruse', 'cruse@icloud.com');
+#          insert into simple_company.employee(first_name, last_name, email_id) VALUES ('Jon', 'Jones', 'jones@icloud.com');
+#      become_user: postgres
+
+    - name: Copy Docker image REACT tar file to the VM
+      ansible.builtin.copy:
+        src: ../react-frontend1.tar
+        dest: react-frontend1.tar
+
+    - name: Load Docker image REACT from tar file
+      command: docker load -i react-frontend1.tar
+
+    - name: Copy Docker image SPRING tar file to the VM
+      ansible.builtin.copy:
+        src: ../web-service.tar
+        dest: web-service.tar
+
+    - name: Load Docker image SPRING from tar file
+      command: docker load -i web-service.tar
+
+    - name: Copy Docker image PGDB tar file to the VM
+      ansible.builtin.copy:
+        src: ../postgresql-web.tar
+        dest: postgresql-web.tar
+
+    - name: Load Docker image PGDB from tar file
+      command: docker load -i postgresql-web.tar
+
+    - name: Create a directory for Spring app
+      file:
+        path: "{{ react_app_name }}"
+        state: directory
+
+    - name: Copy DockerCompose file to the VM
+      ansible.builtin.copy:
+        src: ../docker-compose.yaml
+        dest: "{{ react_app_name }}/docker-compose.yaml"
+
+#    - name: Deploy and Start Docker Compose
+#      community.general.docker_compose:
+#        project_src: /compose  # Directory containing the docker-compose.yml
+#        state: present
+
+#    - name: Run Docker compose
+#      command: cd react-frontend/ | docker-compose up --build
