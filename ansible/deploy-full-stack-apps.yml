@@ -157,10 +157,7 @@
         src: ../docker-compose.yaml
         dest: "{{ react_app_name }}/docker-compose.yaml"
 
-#    - name: Deploy and Start Docker Compose
-#      community.general.docker_compose:
-#        project_src: /compose  # Directory containing the docker-compose.yml
-#        state: present
-
-#    - name: Run Docker compose
-#      command: cd react-frontend/ | docker-compose up --build
+    - name: Run docker-compose up
+      command: docker-compose up -d
+      args:
+        chdir: "{{ react_app_name }}"
